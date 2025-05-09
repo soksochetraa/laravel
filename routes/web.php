@@ -1,56 +1,66 @@
 <?php
-
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 use App\Models\Classroom;
 
-// Get all students
 Route::get('/students', function () {
     return response()->json(Classroom::getStudents());
 });
 
-// Add a new student
-Route::post('/students', function () {
-    $data = request()->all();
-    $created = Classroom::addStudent($data);
-    return $created ? response()->json(['message' => 'Student added', 'data' => $created])
-                    : response()->json(['error' => 'ID already exists'], 409);
+Route::get('/students/{id}', function ($id) {
+    $student = Classroom::getStudentById($id);
+    return $student
+        ? response()->json($student)
+        : response()->json(['error' => 'Student not found'], 404);
 });
 
-// Delete a student by ID
+Route::post('/students', function (Request $request) {
+    $id = Classroom::addStudent($request->all());
+    $student = Classroom::getStudentById($id);
+    return response()->json(['message' => 'Student added', 'data' => $student], 201);
+});
+
+Route::patch('/students/{id}', function ($id, Request $request) {
+    $updated = Classroom::updateStudent($id, $request->all());
+    if ($updated) {
+        $student = Classroom::getStudentById($id);
+        return response()->json(['message' => 'Student updated', 'data' => $student]);
+    }
+    return response()->json(['error' => 'Student not found'], 404);
+});
+
 Route::delete('/students/{id}', function ($id) {
     Classroom::deleteStudent($id);
     return response()->json(['message' => 'Student deleted']);
 });
 
-// Update or patch a student by ID
-Route::patch('/students/{id}', function ($id) {
-    $updated = Classroom::updateStudent($id, request()->all());
-    return $updated ? response()->json(['message' => 'Student updated', 'data' => $updated])
-                    : response()->json(['error' => 'Student not found'], 404);
-});
-
-// Get all teachers
 Route::get('/teachers', function () {
     return response()->json(Classroom::getTeachers());
 });
 
-// Add a new teacher
-Route::post('/teachers', function () {
-    $data = request()->all();
-    $created = Classroom::addTeacher($data);
-    return $created ? response()->json(['message' => 'Teacher added', 'data' => $created])
-                    : response()->json(['error' => 'ID already exists'], 409);
+Route::get('/teachers/{id}', function ($id) {
+    $teacher = Classroom::getTeacherById($id);
+    return $teacher
+        ? response()->json($teacher)
+        : response()->json(['error' => 'Teacher not found'], 404);
 });
 
-// Delete a teacher by ID
+Route::post('/teachers', function (Request $request) {
+    $id = Classroom::addTeacher($request->all());
+    $teacher = Classroom::getTeacherById($id);
+    return response()->json(['message' => 'Teacher added', 'data' => $teacher], 201);
+});
+
+Route::patch('/teachers/{id}', function ($id, Request $request) {
+    $updated = Classroom::updateTeacher($id, $request->all());
+    if ($updated) {
+        $teacher = Classroom::getTeacherById($id);
+        return response()->json(['message' => 'Teacher updated', 'data' => $teacher]);
+    }
+    return response()->json(['error' => 'Teacher not found'], 404);
+});
+
 Route::delete('/teachers/{id}', function ($id) {
     Classroom::deleteTeacher($id);
     return response()->json(['message' => 'Teacher deleted']);
-});
-
-// Update or patch a teacher by ID
-Route::patch('/teachers/{id}', function ($id) {
-    $updated = Classroom::updateTeacher($id, request()->all());
-    return $updated ? response()->json(['message' => 'Teacher updated', 'data' => $updated])
-                    : response()->json(['error' => 'Teacher not found'], 404);
 });
