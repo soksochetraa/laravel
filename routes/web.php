@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
+use Illuminate\Support\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Student;
 use App\Models\Teacher;
@@ -9,10 +10,6 @@ use App\Models\Teacher;
 Route::get('/', function () {
     return view('welcome');
 });
-
-// ----------------------
-// Student Routes
-// ----------------------
 
 // Get all students
 Route::get('/students', function () {

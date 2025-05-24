@@ -1,62 +1,50 @@
 <?php
 
 namespace App\Models;
-use Illuminate\Database\Eloquent\Model;
+
+use Illuminate\Support\Facades\DB;
 
 class Student
 {
-    protected $students = [];
-
-    public function __construct()
-    {
-        $this->students = [
-            ['id' => 1, 'name' => 'Sok Sochetra', 'grade'=> 'A', 'department'=>'ITE','email' => "soksochetra@ite.edu.kh"],
-            ['id' => 2, 'name' => 'Kndrick Lamar', 'grade'=> 'A', 'department'=>'ITE','email' => "kendricklamar@ite.edu.kh"],
-            ['id' => 3, 'name' => 'Drake', 'grade'=> 'A', 'department'=>'ITE','email' => "drake@ite.edu.kh"],
-        ];
-    }
-
     public function getAllStudents()
     {
-        return $this->students;
+        return DB::table('students')->get();
     }
 
     public function getStudentById($id)
     {
-        foreach ($this->students as $student) {
-            if ($student['id'] == $id) {
-                return $student;
-            }
-        }
-        return null;
+        return DB::table('students')->where('id', $id)->first();
     }
 
     public function createStudent($data)
     {
-        $data['id'] = count($this->students) + 1;
-        $this->students[] = $data;
-        return $data;
+        $id = DB::table('students')->insertGetId([
+            'name' => $data['name'],
+            'grade' => $data['grade'],
+            'department' => $data['department'],
+            'email' => $data['email'],
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return $this->getStudentById($id);
     }
 
     public function updateStudent($id, $data)
     {
-        foreach ($this->students as &$student) {
-            if ($student['id'] == $id) {
-                $student = array_merge($student, $data);
-                return $student;
-            }
+        $updated = DB::table('students')->where('id', $id)->update(array_merge(
+            $data,
+            ['updated_at' => now()]
+        ));
+
+        if ($updated) {
+            return $this->getStudentById($id);
         }
         return null;
     }
 
     public function deleteStudent($id)
     {
-        foreach ($this->students as $key => $student) {
-            if ($student['id'] == $id) {
-                unset($this->students[$key]);
-                return true;
-            }
-        }
-        return false;
+        return DB::table('students')->where('id', $id)->delete() > 0;
     }
 }
